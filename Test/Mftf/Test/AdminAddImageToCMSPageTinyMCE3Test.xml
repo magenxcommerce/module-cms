@@ -15,11 +15,14 @@
             <group value="Cms"/>
             <title value="Verify that admin is able to upload image to a CMS Page with TinyMCE3 enabled"/>
             <description value="Verify that admin is able to upload image to CMS Page with TinyMCE3 enabled"/>
-            <severity value="BLOCKER"/>
+            <severity value="MAJOR"/>
             <testCaseId value="MAGETWO-95725"/>
+            <skip>
+                <issueId value="MC-5371" />
+            </skip>
         </annotations>
         <before>
-            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
             <magentoCLI command="config:set cms/wysiwyg/enabled enabled" stepKey="enableWYSIWYG"/>
             <!-- Choose TinyMCE3 as the default WYSIWYG editor-->
             <magentoCLI command="config:set cms/wysiwyg/editor Magento_Tinymce3/tinymce3Adapter" stepKey="enableTinyMCE3"/>
@@ -28,7 +31,7 @@
             <!-- Switch WYSIWYG editor to TinyMCE4-->
             <comment userInput="Reset editor as TinyMCE4" stepKey="chooseTinyMCE4AsEditor"/>
             <magentoCLI command="config:set cms/wysiwyg/editor mage/adminhtml/wysiwyg/tiny_mce/tinymce4Adapter" stepKey="enableTinyMCE4"/>
-            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <actionGroup ref="logout" stepKey="logout"/>
         </after>
         <amOnPage url="{{CmsNewPagePage.url}}" stepKey="navigateToPage2"/>
         <waitForPageLoad stepKey="wait5"/>
@@ -47,13 +50,13 @@
         <click selector="{{MediaGallerySection.browseForImage}}" stepKey="clickBrowse"/>
         <switchToIFrame stepKey="switchOutOfIFrame"/>
         <waitForPageLoad stepKey="waitForPageToLoad" />
-        <actionGroup ref="CreateImageFolderActionGroup" stepKey="CreateImageFolder">
+        <actionGroup ref="CreateImageFolder" stepKey="CreateImageFolder">
             <argument name="ImageFolder" value="ImageFolder"/>
         </actionGroup>
-        <actionGroup ref="AttachImageActionGroup" stepKey="attachImage1">
+        <actionGroup ref="attachImage" stepKey="attachImage1">
             <argument name="Image" value="ImageUpload"/>
         </actionGroup>
-        <actionGroup ref="SaveImageActionGroup" stepKey="insertImage"/>
+        <actionGroup ref="saveImage" stepKey="insertImage"/>
         <!-- Switching back to the Edit/Insert Image iFrame-->
         <comment userInput="switching back to iFrame" stepKey="switchBackToIFrame"/>
         <executeJS function="document.querySelector('.clearlooks2 iframe').setAttribute('name', 'insert-image');" stepKey="makeIFrameInteractable2"/>

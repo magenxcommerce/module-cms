@@ -4,19 +4,16 @@
  * See COPYING.txt for license details.
  */
 
-/** @var $block \Magento\Cms\Block\Adminhtml\Wysiwyg\Images\Content\Files */
+// @codingStandardsIgnoreFile
+
+ /** @var $block \Magento\Cms\Block\Adminhtml\Wysiwyg\Images\Content\Files */
 
 $_width  = $block->getImagesWidth();
+$_height = $block->getImagesHeight();
 
 ?>
 <?php if ($block->getFilesCount() > 0): ?>
     <?php foreach ($block->getFiles() as $file): ?>
-        <?php
-            $src = $block->getFileThumbUrl($file);
-            $width = $block->getFileWidth($file);
-            $height = $block->getFileHeight($file);
-            $filename = $block->getFileName($file);
-        ?>
     <div
         data-row="file"
         class="filecnt"
@@ -24,14 +21,13 @@ $_width  = $block->getImagesWidth();
         data-size="<?= $block->escapeHtmlAttr($file->getSize()) ?>"
         data-mime-type="<?= $block->escapeHtmlAttr($file->getMimeType()) ?>"
     >
-        <p class="nm">
-        <?php if ($block->getFileThumbUrl($file)): ?>
-            <img src="<?= $block->escapeHtmlAttr($src) ?>" alt="<?= $block->escapeHtmlAttr($filename) ?>"/>
+        <p class="nm" style="height:<?= $block->escapeHtmlAttr($_height) ?>px;width:<?= $block->escapeHtmlAttr($_width) ?>px;">
+        <?php if ($block->getFileThumbUrl($file)):?>
+            <img src="<?= $block->escapeHtmlAttr($block->getFileThumbUrl($file)) ?>" alt="<?= $block->escapeHtmlAttr($block->getFileName($file)) ?>"/>
         <?php endif; ?>
         </p>
         <?php if ($block->getFileWidth($file)): ?>
-              <small><?= $block->escapeHtmlAttr($width) ?>x<?= $block->escapeHtmlAttr($height) ?>
-                                                                   <?= $block->escapeHtml(__('px.')) ?></small><br/>
+            <small><?= $block->escapeHtml($block->getFileWidth($file)) ?>x<?= $block->escapeHtml($block->getFileHeight($file)) ?> <?= $block->escapeHtml(__('px.')) ?></small><br/>
         <?php endif; ?>
         <small><?= $block->escapeHtml($block->getFileShortName($file)) ?></small>
     </div>

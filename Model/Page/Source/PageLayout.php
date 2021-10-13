@@ -20,7 +20,6 @@ class PageLayout implements OptionSourceInterface
 
     /**
      * @var array
-     * @deprecated 103.0.1 since the cache is now handled by \Magento\Theme\Model\PageLayout\Config\Builder::$configFiles
      */
     protected $options;
 
@@ -35,10 +34,16 @@ class PageLayout implements OptionSourceInterface
     }
 
     /**
-     * @inheritdoc
+     * Get options
+     *
+     * @return array
      */
     public function toOptionArray()
     {
+        if ($this->options !== null) {
+            return $this->options;
+        }
+
         $configOptions = $this->pageLayoutBuilder->getPageLayoutsConfig()->getOptions();
         $options = [];
         foreach ($configOptions as $key => $value) {
@@ -49,6 +54,6 @@ class PageLayout implements OptionSourceInterface
         }
         $this->options = $options;
 
-        return $options;
+        return $this->options;
     }
 }

@@ -1,16 +1,12 @@
 <?php
 /**
+ *
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Magento\Cms\Controller\Adminhtml\Page;
 
-use Magento\Framework\App\Action\HttpPostActionInterface;
-
-/**
- * Delete CMS page action.
- */
-class Delete extends \Magento\Backend\App\Action implements HttpPostActionInterface
+class Delete extends \Magento\Backend\App\Action
 {
     /**
      * Authorization level of a basic admin session

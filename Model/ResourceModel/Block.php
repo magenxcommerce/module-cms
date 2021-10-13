@@ -95,11 +95,9 @@ class Block extends AbstractDb
     }
 
     /**
-     * Get block id.
-     *
      * @param AbstractModel $object
      * @param mixed $value
-     * @param string $field
+     * @param null $field
      * @return bool|int|string
      * @throws LocalizedException
      * @throws \Exception
@@ -185,9 +183,11 @@ class Block extends AbstractDb
         $entityMetadata = $this->metadataPool->getMetadata(BlockInterface::class);
         $linkField = $entityMetadata->getLinkField();
 
-        $stores = $this->_storeManager->isSingleStoreMode()
-            ? [Store::DEFAULT_STORE_ID]
-            : (array)$object->getData('store_id');
+        if ($this->_storeManager->isSingleStoreMode()) {
+            $stores = [Store::DEFAULT_STORE_ID];
+        } else {
+            $stores = (array)$object->getData('store_id');
+        }
 
         $select = $this->getConnection()->select()
             ->from(['cb' => $this->getMainTable()])
@@ -196,7 +196,7 @@ class Block extends AbstractDb
                 'cb.' . $linkField . ' = cbs.' . $linkField,
                 []
             )
-            ->where('cb.identifier = ?  ', $object->getData('identifier'))
+            ->where('cb.identifier = ?', $object->getData('identifier'))
             ->where('cbs.store_id IN (?)', $stores);
 
         if ($object->getId()) {
@@ -236,8 +236,6 @@ class Block extends AbstractDb
     }
 
     /**
-     * Save an object.
-     *
      * @param AbstractModel $object
      * @return $this
      * @throws \Exception

@@ -8,22 +8,18 @@ namespace Magento\Cms\Model;
 
 use Magento\Cms\Api\Data;
 use Magento\Cms\Api\PageRepositoryInterface;
-use Magento\Cms\Model\Page\IdentityMap;
-use Magento\Cms\Model\ResourceModel\Page as ResourcePage;
-use Magento\Cms\Model\ResourceModel\Page\CollectionFactory as PageCollectionFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\EntityManager\HydratorInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Cms\Model\ResourceModel\Page as ResourcePage;
+use Magento\Cms\Model\ResourceModel\Page\CollectionFactory as PageCollectionFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * @inheritdoc
- *
+ * Class PageRepository
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PageRepository implements PageRepositoryInterface
@@ -74,16 +70,6 @@ class PageRepository implements PageRepositoryInterface
     private $collectionProcessor;
 
     /**
-     * @var IdentityMap
-     */
-    private $identityMap;
-
-    /**
-     * @var HydratorInterface
-     */
-    private $hydrator;
-
-    /**
      * @param ResourcePage $resource
      * @param PageFactory $pageFactory
      * @param Data\PageInterfaceFactory $dataPageFactory
@@ -93,9 +79,6 @@ class PageRepository implements PageRepositoryInterface
      * @param DataObjectProcessor $dataObjectProcessor
      * @param StoreManagerInterface $storeManager
      * @param CollectionProcessorInterface $collectionProcessor
-     * @param IdentityMap|null $identityMap
-     * @param HydratorInterface|null $hydrator
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ResourcePage $resource,
@@ -106,9 +89,7 @@ class PageRepository implements PageRepositoryInterface
         DataObjectHelper $dataObjectHelper,
         DataObjectProcessor $dataObjectProcessor,
         StoreManagerInterface $storeManager,
-        CollectionProcessorInterface $collectionProcessor = null,
-        ?IdentityMap $identityMap = null,
-        ?HydratorInterface $hydrator = null
+        CollectionProcessorInterface $collectionProcessor = null
     ) {
         $this->resource = $resource;
         $this->pageFactory = $pageFactory;
@@ -119,38 +100,12 @@ class PageRepository implements PageRepositoryInterface
         $this->dataObjectProcessor = $dataObjectProcessor;
         $this->storeManager = $storeManager;
         $this->collectionProcessor = $collectionProcessor ?: $this->getCollectionProcessor();
-        $this->identityMap = $identityMap ?? ObjectManager::getInstance()->get(IdentityMap::class);
-        $this->hydrator = $hydrator ?: ObjectManager::getInstance()->get(HydratorInterface::class);
-    }
-
-    /**
-     * Validate new layout update values.
-     *
-     * @param Data\PageInterface $page
-     * @return void
-     * @throws \InvalidArgumentException
-     */
-    private function validateLayoutUpdate(Data\PageInterface $page): void
-    {
-        //Persisted data
-        $savedPage = $page->getId() ? $this->getById($page->getId()) : null;
-        //Custom layout update can be removed or kept as is.
-        if ($page->getCustomLayoutUpdateXml()
-            && (!$savedPage || $page->getCustomLayoutUpdateXml() !== $savedPage->getCustomLayoutUpdateXml())
-        ) {
-            throw new \InvalidArgumentException('Custom layout updates must be selected from a file');
-        }
-        if ($page->getLayoutUpdateXml()
-            && (!$savedPage || $page->getLayoutUpdateXml() !== $savedPage->getLayoutUpdateXml())
-        ) {
-            throw new \InvalidArgumentException('Custom layout updates must be selected from a file');
-        }
     }
 
     /**
      * Save Page data
      *
-     * @param \Magento\Cms\Api\Data\PageInterface|Page $page
+     * @param \Magento\Cms\Api\Data\PageInterface $page
      * @return Page
      * @throws CouldNotSaveException
      */
@@ -160,15 +115,8 @@ class PageRepository implements PageRepositoryInterface
             $storeId = $this->storeManager->getStore()->getId();
             $page->setStoreId($storeId);
         }
-        $pageId = $page->getId();
-
         try {
-            $this->validateLayoutUpdate($page);
-            if ($pageId) {
-                $page = $this->hydrator->hydrate($this->getById($pageId), $this->hydrator->extract($page));
-            }
             $this->resource->save($page);
-            $this->identityMap->add($page);
         } catch (\Exception $exception) {
             throw new CouldNotSaveException(
                 __('Could not save the page: %1', $exception->getMessage()),
@@ -192,8 +140,6 @@ class PageRepository implements PageRepositoryInterface
         if (!$page->getId()) {
             throw new NoSuchEntityException(__('The CMS page with the "%1" ID doesn\'t exist.', $pageId));
         }
-        $this->identityMap->add($page);
-
         return $page;
     }
 
@@ -231,11 +177,11 @@ class PageRepository implements PageRepositoryInterface
     {
         try {
             $this->resource->delete($page);
-            $this->identityMap->remove($page->getId());
         } catch (\Exception $exception) {
-            throw new CouldNotDeleteException(
-                __('Could not delete the page: %1', $exception->getMessage())
-            );
+            throw new CouldNotDeleteException(__(
+                'Could not delete the page: %1',
+                $exception->getMessage()
+            ));
         }
         return true;
     }
@@ -263,8 +209,7 @@ class PageRepository implements PageRepositoryInterface
     {
         if (!$this->collectionProcessor) {
             $this->collectionProcessor = \Magento\Framework\App\ObjectManager::getInstance()->get(
-                // phpstan:ignore "Class Magento\Cms\Model\Api\SearchCriteria\PageCollectionProcessor not found."
-                \Magento\Cms\Model\Api\SearchCriteria\PageCollectionProcessor::class
+                'Magento\Cms\Model\Api\SearchCriteria\PageCollectionProcessor'
             );
         }
         return $this->collectionProcessor;

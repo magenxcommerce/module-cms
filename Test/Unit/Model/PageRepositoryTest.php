@@ -5,40 +5,40 @@
  */
 namespace Magento\Cms\Test\Unit\Model;
 
-use Magento\Cms\Model\BlockRepository;
+use Magento\Cms\Model\PageRepository;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 
 /**
- * Test for Magento\Cms\Model\BlockRepository
+ * Test for Magento\Cms\Model\PageRepository
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
+class PageRepositoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var BlockRepository
+     * @var PageRepository
      */
     protected $repository;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Model\ResourceModel\Block
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Model\ResourceModel\Page
      */
-    protected $blockResource;
+    protected $pageResource;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Model\Block
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Model\Page
      */
-    protected $block;
+    protected $page;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Api\Data\BlockInterface
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Api\Data\PageInterface
      */
-    protected $blockData;
+    protected $pageData;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Api\Data\BlockSearchResultsInterface
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Api\Data\PageSearchResultsInterface
      */
-    protected $blockSearchResult;
+    protected $pageSearchResult;
 
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Framework\Api\DataObjectHelper
@@ -51,7 +51,7 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
     protected $dataObjectProcessor;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Model\ResourceModel\Block\Collection
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Cms\Model\ResourceModel\Page\Collection
      */
     protected $collection;
 
@@ -70,27 +70,25 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     protected function setUp()
     {
-        $this->blockResource = $this->getMockBuilder(\Magento\Cms\Model\ResourceModel\Block::class)
+        $this->pageResource = $this->getMockBuilder(\Magento\Cms\Model\ResourceModel\Page::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->dataObjectProcessor = $this->getMockBuilder(\Magento\Framework\Reflection\DataObjectProcessor::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $blockFactory = $this->getMockBuilder(\Magento\Cms\Model\BlockFactory::class)
+        $pageFactory = $this->getMockBuilder(\Magento\Cms\Model\PageFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $blockDataFactory = $this->getMockBuilder(\Magento\Cms\Api\Data\BlockInterfaceFactory::class)
+        $pageDataFactory = $this->getMockBuilder(\Magento\Cms\Api\Data\PageInterfaceFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $blockSearchResultFactory = $this->getMockBuilder(
-            \Magento\Cms\Api\Data\BlockSearchResultsInterfaceFactory::class
-        )
+        $pageSearchResultFactory = $this->getMockBuilder(\Magento\Cms\Api\Data\PageSearchResultsInterfaceFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $collectionFactory = $this->getMockBuilder(\Magento\Cms\Model\ResourceModel\Block\CollectionFactory::class)
+        $collectionFactory = $this->getMockBuilder(\Magento\Cms\Model\ResourceModel\Page\CollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
@@ -103,33 +101,33 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
         $store->expects($this->any())->method('getId')->willReturn(0);
         $this->storeManager->expects($this->any())->method('getStore')->willReturn($store);
 
-        $this->block = $this->getMockBuilder(\Magento\Cms\Model\Block::class)->disableOriginalConstructor()->getMock();
-        $this->blockData = $this->getMockBuilder(\Magento\Cms\Api\Data\BlockInterface::class)
+        $this->page = $this->getMockBuilder(\Magento\Cms\Model\Page::class)->disableOriginalConstructor()->getMock();
+        $this->pageData = $this->getMockBuilder(\Magento\Cms\Api\Data\PageInterface::class)
             ->getMock();
-        $this->blockSearchResult = $this->getMockBuilder(\Magento\Cms\Api\Data\BlockSearchResultsInterface::class)
+        $this->pageSearchResult = $this->getMockBuilder(\Magento\Cms\Api\Data\PageSearchResultsInterface::class)
             ->getMock();
-        $this->collection = $this->getMockBuilder(\Magento\Cms\Model\ResourceModel\Block\Collection::class)
+        $this->collection = $this->getMockBuilder(\Magento\Cms\Model\ResourceModel\Page\Collection::class)
             ->disableOriginalConstructor()
-            ->setMethods(['addFieldToFilter', 'getSize', 'setCurPage', 'setPageSize', 'load', 'addOrder'])
+            ->setMethods(['getSize', 'setCurPage', 'setPageSize', 'load', 'addOrder'])
             ->getMock();
 
-        $blockFactory->expects($this->any())
+        $pageFactory->expects($this->any())
             ->method('create')
-            ->willReturn($this->block);
-        $blockDataFactory->expects($this->any())
+            ->willReturn($this->page);
+        $pageDataFactory->expects($this->any())
             ->method('create')
-            ->willReturn($this->blockData);
-        $blockSearchResultFactory->expects($this->any())
+            ->willReturn($this->pageData);
+        $pageSearchResultFactory->expects($this->any())
             ->method('create')
-            ->willReturn($this->blockSearchResult);
+            ->willReturn($this->pageSearchResult);
         $collectionFactory->expects($this->any())
             ->method('create')
             ->willReturn($this->collection);
         /**
-         * @var \Magento\Cms\Model\BlockFactory $blockFactory
-         * @var \Magento\Cms\Api\Data\BlockInterfaceFactory $blockDataFactory
-         * @var \Magento\Cms\Api\Data\BlockSearchResultsInterfaceFactory $blockSearchResultFactory
-         * @var \Magento\Cms\Model\ResourceModel\Block\CollectionFactory $collectionFactory
+         * @var \Magento\Cms\Model\PageFactory $pageFactory
+         * @var \Magento\Cms\Api\Data\PageInterfaceFactory $pageDataFactory
+         * @var \Magento\Cms\Api\Data\PageSearchResultsInterfaceFactory $pageSearchResultFactory
+         * @var \Magento\Cms\Model\ResourceModel\Page\CollectionFactory $collectionFactory
          */
 
         $this->dataHelper = $this->getMockBuilder(\Magento\Framework\Api\DataObjectHelper::class)
@@ -139,12 +137,12 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->collectionProcessor = $this->getMockBuilder(CollectionProcessorInterface::class)
             ->getMockForAbstractClass();
 
-        $this->repository = new BlockRepository(
-            $this->blockResource,
-            $blockFactory,
-            $blockDataFactory,
+        $this->repository = new PageRepository(
+            $this->pageResource,
+            $pageFactory,
+            $pageDataFactory,
             $collectionFactory,
-            $blockSearchResultFactory,
+            $pageSearchResultFactory,
             $this->dataHelper,
             $this->dataObjectProcessor,
             $this->storeManager,
@@ -157,11 +155,11 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testSave()
     {
-        $this->blockResource->expects($this->once())
+        $this->pageResource->expects($this->once())
             ->method('save')
-            ->with($this->block)
+            ->with($this->page)
             ->willReturnSelf();
-        $this->assertEquals($this->block, $this->repository->save($this->block));
+        $this->assertEquals($this->page, $this->repository->save($this->page));
     }
 
     /**
@@ -169,21 +167,21 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteById()
     {
-        $blockId = '123';
+        $pageId = '123';
 
-        $this->block->expects($this->once())
+        $this->page->expects($this->once())
             ->method('getId')
             ->willReturn(true);
-        $this->blockResource->expects($this->once())
+        $this->page->expects($this->once())
             ->method('load')
-            ->with($this->block, $blockId)
-            ->willReturn($this->block);
-        $this->blockResource->expects($this->once())
+            ->with($pageId)
+            ->willReturnSelf();
+        $this->pageResource->expects($this->once())
             ->method('delete')
-            ->with($this->block)
+            ->with($this->page)
             ->willReturnSelf();
 
-        $this->assertTrue($this->repository->deleteById($blockId));
+        $this->assertTrue($this->repository->deleteById($pageId));
     }
 
     /**
@@ -193,11 +191,11 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testSaveException()
     {
-        $this->blockResource->expects($this->once())
+        $this->pageResource->expects($this->once())
             ->method('save')
-            ->with($this->block)
+            ->with($this->page)
             ->willThrowException(new \Exception());
-        $this->repository->save($this->block);
+        $this->repository->save($this->page);
     }
 
     /**
@@ -207,11 +205,11 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteException()
     {
-        $this->blockResource->expects($this->once())
+        $this->pageResource->expects($this->once())
             ->method('delete')
-            ->with($this->block)
+            ->with($this->page)
             ->willThrowException(new \Exception());
-        $this->repository->delete($this->block);
+        $this->repository->delete($this->page);
     }
 
     /**
@@ -221,16 +219,16 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetByIdException()
     {
-        $blockId = '123';
+        $pageId = '123';
 
-        $this->block->expects($this->once())
+        $this->page->expects($this->once())
             ->method('getId')
             ->willReturn(false);
-        $this->blockResource->expects($this->once())
+        $this->page->expects($this->once())
             ->method('load')
-            ->with($this->block, $blockId)
-            ->willReturn($this->block);
-        $this->repository->getById($blockId);
+            ->with($pageId)
+            ->willReturnSelf();
+        $this->repository->getById($pageId);
     }
 
     /**
@@ -243,7 +241,7 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
         /** @var \Magento\Framework\Api\SearchCriteriaInterface $criteria */
         $criteria = $this->getMockBuilder(\Magento\Framework\Api\SearchCriteriaInterface::class)->getMock();
 
-        $this->collection->addItem($this->block);
+        $this->collection->addItem($this->page);
         $this->collection->expects($this->once())
             ->method('getSize')
             ->willReturn($total);
@@ -253,18 +251,18 @@ class BlockRepositoryTest extends \PHPUnit\Framework\TestCase
             ->with($criteria, $this->collection)
             ->willReturnSelf();
 
-        $this->blockSearchResult->expects($this->once())
+        $this->pageSearchResult->expects($this->once())
             ->method('setSearchCriteria')
             ->with($criteria)
             ->willReturnSelf();
-        $this->blockSearchResult->expects($this->once())
+        $this->pageSearchResult->expects($this->once())
             ->method('setTotalCount')
             ->with($total)
             ->willReturnSelf();
-        $this->blockSearchResult->expects($this->once())
+        $this->pageSearchResult->expects($this->once())
             ->method('setItems')
-            ->with([$this->block])
+            ->with([$this->page])
             ->willReturnSelf();
-        $this->assertEquals($this->blockSearchResult, $this->repository->getList($criteria));
+        $this->assertEquals($this->pageSearchResult, $this->repository->getList($criteria));
     }
 }
