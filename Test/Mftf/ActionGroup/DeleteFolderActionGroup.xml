@@ -5,7 +5,6 @@
   * See COPYING.txt for license details.
   */
 -->
-
 <actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
     <actionGroup name="DeleteFolderActionGroup">
@@ -17,8 +16,8 @@
         </arguments>
 
         <click userInput="{{ImageFolder.name}}" stepKey="clickOnCreatedFolder"/>
-        <waitForLoadingMaskToDisappear stepKey="waitForLoading"/>
-        <see selector="{{MediaGallerySection.DeleteFolder}}" userInput="Delete Folder" stepKey="seeDeleteFolderBtn"/>
+        <waitForPageLoad stepKey="waitForLoading"/>
+        <waitForText selector="{{MediaGallerySection.DeleteFolder}}" userInput="Delete Folder" stepKey="seeDeleteFolderBtn"/>
         <click selector="{{MediaGallerySection.DeleteFolder}}" stepKey="clickDeleteFolderBtn"/>
         <waitForText userInput="OK" stepKey="waitForConfirm"/>
         <click selector="{{MediaGallerySection.confirmDelete}}" stepKey="confirmDelete"/>
