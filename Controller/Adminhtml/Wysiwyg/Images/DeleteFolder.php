@@ -66,16 +66,17 @@ class DeleteFolder extends Images implements HttpPostActionInterface
      */
     public function execute()
     {
-        $result = [];
         try {
             $path = $this->getStorage()->getCmsWysiwygImages()->getCurrentPath();
             $this->getStorage()->deleteDirectory($path);
+
+            return $this->resultRawFactory->create();
         } catch (\Exception $e) {
             $result = ['error' => true, 'message' => $e->getMessage()];
-        }
-        /** @var Json $resultJson */
-        $resultJson = $this->resultJsonFactory->create();
+            /** @var Json $resultJson */
+            $resultJson = $this->resultJsonFactory->create();
 
-        return $resultJson->setData($result);
+            return $resultJson->setData($result);
+        }
     }
 }
